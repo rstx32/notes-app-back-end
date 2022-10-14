@@ -4,7 +4,7 @@ import routes from './routes.js'
 const initServer = async () => {
   const server = _server({
     port: 8080,
-    host: 'localhost',
+    host: process.env.NODE_ENV !== 'production' ? 'localhost' : '0.0.0.0',
     routes: {
       cors: {
         origin: ['*'],
