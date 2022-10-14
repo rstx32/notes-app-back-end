@@ -59,7 +59,7 @@ const showNoteHandler = (request, h) => {
           note,
         },
       })
-      .code(201)
+      .code(200)
   } else {
     return h
       .response({
