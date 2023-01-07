@@ -1,4 +1,6 @@
 import { nanoid } from 'nanoid'
+import InvariantError from '../../exceptions/InvariantError.js'
+import NotFoundError from '../../exceptions/NotFoundError.js'
 
 class NotesService {
   constructor() {
@@ -23,7 +25,7 @@ class NotesService {
 
     const isSuccess = this._notes.filter((note) => note.id === id).length > 0
     if (!isSuccess) {
-      throw new Error('Failed to add notes!')
+      throw new InvariantError('Catatan gagal ditambahkan')
     }
 
     return id
@@ -36,7 +38,7 @@ class NotesService {
   getNoteById(id) {
     const found = this._notes.find((note) => note.id === id)
     if (!found) {
-      throw new Error('Notes unavailable!')
+      throw new NotFoundError('Catatan tidak ditemukan')
     }
 
     return found
@@ -49,7 +51,7 @@ class NotesService {
   editNoteById(id, { title, body, tags }) {
     const index = this.getNoteIndex(id)
     if (index === -1) {
-      throw new Error('failed to update note, id not found!')
+      throw new NotFoundError('Gagal memperbarui catatan. Id tidak ditemukan')
     }
 
     const updatedAt = new Date().toISOString()
@@ -66,7 +68,7 @@ class NotesService {
   deleteNoteById(id) {
     const index = this.getNoteIndex(id)
     if (index === -1) {
-      throw new Error('failed to delete note, id not found!')
+      throw new NotFoundError('Catatan gagal dihapus. Id tidak ditemukan')
     }
 
     this._notes.splice(index, 1)
