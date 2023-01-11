@@ -36,7 +36,7 @@ class NotesService {
   }
 
   async getNoteById(id) {
-    const query = `SELECT * FROM notes WHERE id=${id}`
+    const query = `SELECT * FROM notes WHERE id='${id}'`
     const result = await this._pool.query(query)
 
     if (!result.rows.length) {
@@ -48,7 +48,7 @@ class NotesService {
   async editNoteById(id, { title, body, tags }) {
     const updatedAt = new Date().toISOString()
     const query = {
-      text: 'UPDATE notes SET title=$1, body=$2, tags=$3, updated_at=$4 WHERE id=$5 RETURNING id',
+      text: 'UPDATE notes SET title=$1, body=$2, tags=$3, updated_at=$4 WHERE id=$5 RETURNING *',
       values: [title, body, tags, updatedAt, id],
     }
     const result = await this._pool.query(query)
@@ -56,10 +56,12 @@ class NotesService {
     if (!result.rows.length) {
       throw new NotFoundError('Gagal memperbarui catatan. Id tidak ditemukan')
     }
+
+    return result.rows[0]
   }
 
   async deleteNoteById(id) {
-    const query = `DELETE FROM NOTES WHERE id=${id} RETURNING id`
+    const query = `DELETE FROM NOTES WHERE id='${id}' RETURNING id`
     const result = await this._pool.query(query)
 
     if (!result.rows.length) {

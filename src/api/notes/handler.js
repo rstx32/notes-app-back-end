@@ -103,11 +103,12 @@ class NotesHandler {
       const { title, body, tags } = request.payload
       const { id } = request.params
 
-      await this._service.editNoteById(id, { title, body, tags })
+      const note = await this._service.editNoteById(id, { title, body, tags })
 
       return {
         status: 'success',
         message: 'Catatan berhasil diperbarui',
+        note,
       }
     } catch (error) {
       if (error instanceof ClientError) {
@@ -140,7 +141,7 @@ class NotesHandler {
 
       return {
         status: 'success',
-        message: 'success deleting note',
+        message: 'Catatan berhasil dihapus',
       }
     } catch (error) {
       if (error instanceof ClientError) {
