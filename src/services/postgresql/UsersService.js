@@ -4,6 +4,7 @@ const { Pool } = pg
 import bcrypt from 'bcrypt'
 import InvariantError from '../../exceptions/InvariantError.js'
 import NotFoundError from '../../exceptions/NotFoundError.js'
+import AuthenticationError from '../../exceptions/AuthenticationError.js'
 
 class UsersService {
   constructor() {
@@ -46,6 +47,24 @@ class UsersService {
       throw new NotFoundError('User tidak ditemukan')
     }
     return result.rows[0]
+  }
+
+  async verifyUserCredential(username, password) {
+    const query = `SELECT id, password FROM users WHERE username='${username}'`
+    const result = await this._pool.query(query)
+
+    if (!result.rows.length) {
+      throw new AuthenticationError('Kredensial yang Anda berikan salah')
+    }
+
+    const { id, password: hashedPassword } = result.rows[0]
+    const match = await bcrypt.compare(password, hashedPassword)
+
+    if (!match) {
+      throw new AuthenticationError('Kredensial yang Anda berikan salah')
+    }
+    
+    return id
   }
 }
 

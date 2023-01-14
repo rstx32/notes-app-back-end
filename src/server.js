@@ -12,11 +12,18 @@ import users from './api/users/index.js'
 import UsersService from './services/postgresql/UsersService.js'
 import UsersValidator from './validator/users/index.js'
 
+// authentications
+import authentications from './api/authentications/index.js'
+import AuthenticationsService from './services/postgresql/AuthenticationsService.js'
+import TokenManager from './tokenize/TokenManager.js'
+import AuthenticationsValidator from './validator/authentications/index.js'
+
 // error handling
 import ClientError from './exceptions/ClientError.js'
 ;(async () => {
   const notesService = new NotesService()
   const usersService = new UsersService()
+  const authenticationsService = new AuthenticationsService()
 
   const server = _server({
     host: process.env.HOST,
@@ -42,6 +49,15 @@ import ClientError from './exceptions/ClientError.js'
       options: {
         service: usersService,
         validator: UsersValidator,
+      },
+    },
+    {
+      plugin: authentications,
+      options: {
+        authenticationsService,
+        usersService,
+        tokenManager: TokenManager,
+        validator: AuthenticationsValidator,
       },
     },
   ])
