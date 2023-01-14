@@ -1,4 +1,5 @@
 import { server as _server } from '@hapi/hapi'
+import Jwt from '@hapi/jwt'
 import dotenv from 'dotenv'
 dotenv.config({ path: '.env' })
 
@@ -33,6 +34,30 @@ import ClientError from './exceptions/ClientError.js'
         origin: ['*'],
       },
     },
+  })
+
+  // registrasi plugin eksternal
+  await server.register([
+    {
+      plugin: Jwt,
+    },
+  ])
+
+  // mendefinisikan strategy autentikasi jwt
+  server.auth.strategy('notesapp_jwt', 'jwt', {
+    keys: process.env.ACCESS_TOKEN_KEY,
+    verify: {
+      aud: false,
+      iss: false,
+      sub: false,
+      maxAgeSec: process.env.ACCESS_TOKEN_AGE,
+    },
+    validate: (artifacts) => ({
+      isValid: true,
+      credentials: {
+        id: artifacts.decoded.payload.id,
+      },
+    }),
   })
 
   // notes
