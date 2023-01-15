@@ -1,5 +1,4 @@
 import autoBind from 'auto-bind'
-import ClientError from '../../exceptions/ClientError.js'
 
 class NotesHandler {
   constructor(service, validator) {
