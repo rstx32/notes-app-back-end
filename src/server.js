@@ -19,10 +19,16 @@ import AuthenticationsService from './services/postgresql/AuthenticationsService
 import TokenManager from './tokenize/TokenManager.js'
 import AuthenticationsValidator from './validator/authentications/index.js'
 
+// collaborations
+import collaborations from './api/collaborations/index.js'
+import CollaborationsService from './services/postgresql/CollaborationsService.js'
+import CollaborationsValidator from './validator/collaborations/index.js'
+
 // error handling
 import ClientError from './exceptions/ClientError.js'
 ;(async () => {
-  const notesService = new NotesService()
+  const collaborationsService = new CollaborationsService()
+  const notesService = new NotesService(collaborationsService)
   const usersService = new UsersService()
   const authenticationsService = new AuthenticationsService()
 
@@ -83,6 +89,14 @@ import ClientError from './exceptions/ClientError.js'
         usersService,
         tokenManager: TokenManager,
         validator: AuthenticationsValidator,
+      },
+    },
+    {
+      plugin: collaborations,
+      options: {
+        collaborationsService,
+        notesService,
+        validator: CollaborationsValidator,
       },
     },
   ])

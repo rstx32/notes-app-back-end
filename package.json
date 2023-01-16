@@ -4,7 +4,7 @@
   "description": "",
   "main": "./src/index.js",
   "scripts": {
-    "start": "node ./src/server.js",
+    "start": "HOST=0.0.0.0 node ./src/server.js",
     "dev": "nodemon ./src/server.js",
     "lint": "eslint ./src",
     "migrate": "node-pg-migrate"

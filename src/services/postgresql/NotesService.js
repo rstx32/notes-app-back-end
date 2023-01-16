@@ -7,8 +7,9 @@ import mapDBToModel from '../../utils/index.js'
 import { nanoid } from 'nanoid'
 
 class NotesService {
-  constructor() {
+  constructor(collaborationService) {
     this._pool = new Pool()
+    this._collaborationService = collaborationService
   }
 
   async addNote({ title, body, tags, owner }) {
@@ -31,13 +32,26 @@ class NotesService {
   }
 
   async getNotes(owner) {
-    const query = `SELECT * FROM notes WHERE owner='${owner}'`
+    const query = `
+      SELECT notes.*
+      FROM notes
+      LEFT JOIN collaborations ON collaborations.note_id = notes.id
+      WHERE
+        notes.owner = '${owner}'
+        OR
+        collaborations.user_id = '${owner}'
+      GROUP BY notes.id`
+
     const result = await this._pool.query(query)
     return result.rows.map(mapDBToModel)
   }
 
   async getNoteById(id) {
-    const query = `SELECT * FROM notes WHERE id='${id}'`
+    const query = `
+      SELECT notes.*, users.username
+      FROM notes
+      LEFT JOIN users ON users.id = notes.owner
+      WHERE notes.id = '${id}'`
     const result = await this._pool.query(query)
 
     if (!result.rows.length) {
@@ -82,6 +96,21 @@ class NotesService {
 
     if (note.owner !== owner) {
       throw new AuthorizationError('Anda tidak berhak mengakses resource ini')
+    }
+  }
+
+  async verifyNoteAccess(noteId, userId) {
+    try {
+      await this.verifyNoteOwner(noteId, userId)
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        throw error
+      }
+      try {
+        await this._collaborationService.verifyCollaborator(noteId, userId)
+      } catch {
+        throw error
+      }
     }
   }
 }
