@@ -24,6 +24,11 @@ import collaborations from './api/collaborations/index.js'
 import CollaborationsService from './services/postgresql/CollaborationsService.js'
 import CollaborationsValidator from './validator/collaborations/index.js'
 
+// exports
+import _exports from './api/exports/index.js'
+import ProducerService from './services/rabbitmq/ProducerService.js'
+import ExportsValidator from './validator/exports/index.js'
+
 // error handling
 import ClientError from './exceptions/ClientError.js'
 ;(async () => {
@@ -97,6 +102,13 @@ import ClientError from './exceptions/ClientError.js'
         collaborationsService,
         notesService,
         validator: CollaborationsValidator,
+      },
+    },
+    {
+      plugin: _exports,
+      options: {
+        service: ProducerService,
+        validator: ExportsValidator,
       },
     },
   ])
