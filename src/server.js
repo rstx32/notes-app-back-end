@@ -36,7 +36,7 @@ import ExportsValidator from './validator/exports/index.js'
 
 // uploads
 import uploads from './api/uploads/index.js'
-import StorageService from './services/storage/StorageService.js'
+import StorageService from './services/S3/StorageService.js'
 import UploadsValidator from './validator/uploads/index.js'
 
 // error handling
@@ -46,9 +46,7 @@ import ClientError from './exceptions/ClientError.js'
   const notesService = new NotesService(collaborationsService)
   const usersService = new UsersService()
   const authenticationsService = new AuthenticationsService()
-  const storageService = new StorageService(
-    path.resolve(__dirname, 'api/uploads/file/images')
-  )
+  const storageService = new StorageService()
 
   const server = _server({
     host: process.env.HOST,
