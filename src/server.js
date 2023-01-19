@@ -1,7 +1,12 @@
 import { server as _server } from '@hapi/hapi'
 import Jwt from '@hapi/jwt'
+import Inert from '@hapi/inert'
+import path from 'path'
+import { fileURLToPath } from 'url'
 import dotenv from 'dotenv'
 dotenv.config({ path: '.env' })
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 // notes
 import notes from './api/notes/index.js'
@@ -29,6 +34,11 @@ import _exports from './api/exports/index.js'
 import ProducerService from './services/rabbitmq/ProducerService.js'
 import ExportsValidator from './validator/exports/index.js'
 
+// uploads
+import uploads from './api/uploads/index.js'
+import StorageService from './services/storage/StorageService.js'
+import UploadsValidator from './validator/uploads/index.js'
+
 // error handling
 import ClientError from './exceptions/ClientError.js'
 ;(async () => {
@@ -36,6 +46,9 @@ import ClientError from './exceptions/ClientError.js'
   const notesService = new NotesService(collaborationsService)
   const usersService = new UsersService()
   const authenticationsService = new AuthenticationsService()
+  const storageService = new StorageService(
+    path.resolve(__dirname, 'api/uploads/file/images')
+  )
 
   const server = _server({
     host: process.env.HOST,
@@ -52,6 +65,9 @@ import ClientError from './exceptions/ClientError.js'
     {
       plugin: Jwt,
     },
+    {
+      plugin: Inert
+    }
   ])
 
   // mendefinisikan strategy autentikasi jwt
@@ -109,6 +125,13 @@ import ClientError from './exceptions/ClientError.js'
       options: {
         service: ProducerService,
         validator: ExportsValidator,
+      },
+    },
+    {
+      plugin: uploads,
+      options: {
+        service: storageService,
+        validator: UploadsValidator,
       },
     },
   ])
